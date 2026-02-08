@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linktree Generator | Terminal Edition</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://pl28349596.effectivegatecpm.com/e6/91/ba/e691ba16fd5fe67bbf6caa1c81274db7.js"></script>
+  <style>
+:root {
+    --bg-primary: #0a0e14;
+    --bg-secondary: #0d1117;
+    --bg-terminal: #0c1016;
+    --border-color: #1e3a5f;
+    --grid-color: rgba(0, 149, 255, 0.08);
+    --accent-cyan: #00d4ff;
+    --accent-blue: #0077ff;
+    --accent-green: #00ff88;
+    --accent-red: #ff3366;
+    --accent-yellow: #ffcc00;
+    --text-primary: #e6edf3;
+    --text-secondary: #8b949e;
+    --text-dim: #484f58;
+    --glow-cyan: 0 0 10px rgba(0, 212, 255, 0.5), 0 0 20px rgba(0, 212, 255, 0.3);
+    --glow-green: 0 0 10px rgba(0, 255, 136, 0.5);
+  }
+
+    .dark {
+      --bg-primary: #0a0e14;
+      --bg-secondary: #0d1117;
+      --text-primary: #e6edf3;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'JetBrains Mono', 'Share Tech Mono', monospace;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Blueprint Grid Background */
+    .blueprint-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      background-image:
+      linear-gradient(var(--grid-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-color) 1px, transparent 1px),
+      linear-gradient(rgba(0, 149, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 149, 255, 0.03) 1px, transparent 1px);
+      background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+      animation: gridPulse 4s ease-in-out infinite;
+    }
+
+    @keyframes gridPulse {
+      0%, 100% {
+        opacity: 0.8;
+      }
+      50% {
+        opacity: 1;
+      }
+    }
+
+    /* Scanline Effect */
+    .scanlines {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.1) 0px,
+      rgba(0, 0, 0, 0.1) 1px,
+      transparent 1px,
+      transparent 2px
+      );
+    }
+
+    /* Main Container */
+    .container {
+      position: relative;
+      z-index: 2;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    /* Terminal Header */
+    .terminal-header {
+      background: linear-gradient(180deg, #1a2332 0%, var(--bg-secondary) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 8px 8px 0 0;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .terminal-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .dot-red {
+      background: #ff5f56;
+      box-shadow: 0 0 5px #ff5f56;
+    }
+    .dot-yellow {
+      background: #ffbd2e;
+      box-shadow: 0 0 5px #ffbd2e;
+    }
+    .dot-green {
+      background: #27ca40;
+      box-shadow: 0 0 5px #27ca40;
+    }
+
+    .terminal-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      color: var(--accent-cyan);
+      text-shadow: var(--glow-cyan);
+      letter-spacing: 2px;
+      animation: titleGlow 2s ease-in-out infinite;
+    }
+
+    @keyframes titleGlow {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.8;
+      }
+    }
+
+    .terminal-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11px;
+      color: var(--accent-green);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      animation: statusBlink 1.5s infinite;
+    }
+
+    @keyframes statusBlink {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    /* Main Content Area */
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-top: none;
+      min-height: calc(100vh - 200px);
+    }
+
+    @media (max-width: 900px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Left Panel - Form */
+    .form-panel {
+      padding: 25px;
+      border-right: 1px solid var(--border-color);
+      overflow-y: auto;
+      max-height: calc(100vh - 200px);
+    }
+
+    @media (max-width: 900px) {
+      .form-panel {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        max-height: none;
+      }
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed var(--border-color);
+    }
+
+    .section-icon {
+      color: var(--accent-cyan);
+      font-size: 14px;
+    }
+
+    .section-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Command Line Style Input Groups */
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .input-label::before {
+      content: '>';
+      color: var(--accent-green);
+      font-weight: bold;
+    }
+
+    .input-field {
+      width: 100%;
+      background: var(--bg-terminal);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 12px 15px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    }
+
+    .input-field::placeholder {
+      color: var(--text-dim);
+    }
+
+    /* Dynamic Lists */
+    .dynamic-list {
+      margin-top: 15px;
+    }
+
+    .list-item {
+      background: var(--bg-terminal);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 12px;
+      position: relative;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .list-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .list-item-number {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      color: var(--accent-cyan);
+      background: rgba(0, 212, 255, 0.1);
+      padding: 4px 10px;
+      border-radius: 3px;
+    }
+
+    .remove-btn {
+      background: rgba(255, 51, 102, 0.2);
+      border: 1px solid var(--accent-red);
+      color: var(--accent-red);
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .remove-btn:hover {
+      background: var(--accent-red);
+      color: white;
+    }
+
+    .list-item-inputs {
+      display: grid;
+      gap: 10px;
+    }
+
+    .list-item-inputs.two-col {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    @media (max-width: 600px) {
+      .list-item-inputs.two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .small-input, .small-select {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 10px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--text-primary);
+      width: 100%;
+    }
+
+    .small-input:focus, .small-select:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+    }
+
+    .small-select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300d4ff' stroke-width='2'%3E%3Cpolyline points='6,9 12,15 18,9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 35px;
+    }
+
+    .small-select option {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      padding: 10px;
+    }
+
+    .add-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 119, 255, 0.1) 100%);
+      border: 1px dashed var(--accent-cyan);
+      color: var(--accent-cyan);
+      padding: 12px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .add-btn:hover {
+      background: rgba(0, 212, 255, 0.2);
+      box-shadow: var(--glow-cyan);
+    }
+
+    /* Right Panel - Preview */
+    .preview-panel {
+      padding: 25px;
+      background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .preview-container {
+      flex: 1;
+      background: var(--bg-terminal);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .preview-placeholder {
+      text-align: center;
+      padding: 40px;
+    }
+
+    .preview-placeholder i {
+      font-size: 48px;
+      color: var(--border-color);
+      margin-bottom: 20px;
+    }
+
+    .preview-placeholder p {
+      color: var(--text-dim);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .preview-placeholder .hint {
+      color: var(--accent-cyan);
+      font-size: 11px;
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: rgba(0, 212, 255, 0.1);
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .preview-active {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      color: var(--accent-green);
+      background: rgba(0, 255, 136, 0.1);
+      padding: 5px 10px;
+      border-radius: 3px;
+      border: 1px solid var(--accent-green);
+      z-index: 10;
+      animation: livePulse 2s infinite;
+      display: none;
+    }
+
+    .preview-active.show {
+      display: block;
+    }
+
+    @keyframes livePulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    #preview-iframe {
+      width: 100%;
+      height: 100%;
+      min-height: 500px;
+      border: none;
+      background: white;
+      display: none;
+    }
+
+    #preview-iframe.show {
+      display: block;
+    }
+
+    /* Bottom Bar */
+    .bottom-bar {
+      background: linear-gradient(180deg, var(--bg-secondary) 0%, #1a2332 100%);
+      border: 1px solid var(--border-color);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-preview {
+      background: linear-gradient(135deg, #1a3a5c 0%, #0d2137 100%);
+      border: 1px solid var(--accent-blue);
+      color: var(--accent-cyan);
+    }
+
+    .btn-preview:hover {
+      box-shadow: 0 0 20px rgba(0, 119, 255, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .btn-copy {
+      background: linear-gradient(135deg, #1a4d3a 0%, #0d2920 100%);
+      border: 1px solid var(--accent-green);
+      color: var(--accent-green);
+    }
+
+    .btn-copy:hover {
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .btn-download {
+      background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-blue) 100%);
+      border: none;
+      color: #000;
+    }
+
+    .btn-download:hover {
+      box-shadow: var(--glow-cyan);
+      transform: translateY(-2px);
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--bg-secondary);
+      border: 1px solid var(--accent-green);
+      color: var(--accent-green);
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-size: 13px;
+      z-index: 1000;
+      opacity: 0;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast.error {
+      border-color: var(--accent-red);
+      color: var(--accent-red);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-cyan);
+    }
+
+    /* Code Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-secondary);
+      border: 1px solid var(--accent-cyan);
+      border-radius: 12px;
+      max-width: 900px;
+      width: 100%;
+      max-height: 80vh;
+      overflow: hidden;
+      box-shadow: 0 0 50px rgba(0, 212, 255, 0.3);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 20px;
+      background: var(--bg-terminal);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      color: var(--accent-cyan);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 24px;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .modal-close:hover {
+      color: var(--accent-red);
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      max-height: calc(80vh - 120px);
+    }
+
+    .code-block {
+      background: var(--bg-terminal);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      overflow-x: auto;
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .modal-footer {
+      padding: 15px 20px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="blueprint-grid"></div>
+  <div class="scanlines"></div>
+
+  <div class="container">
+    <!-- Terminal Header -->
+    <div class="terminal-header">
+      <div class="terminal-dots">
+        <div class="terminal-dot dot-red"></div>
+        <div class="terminal-dot dot-yellow"></div>
+        <div class="terminal-dot dot-green"></div>
+      </div>
+      <div class="terminal-title">LINKTREE BUILDER</div>
+      <div class="terminal-status">
+        <div class="status-dot"></div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Left Panel - Form -->
+      <div class="form-panel">
+        <!-- Profile Section -->
+        <div class="section-header">
+          <i class="fas fa-user-circle section-icon"></i>
+          <span class="section-title">PROFIL</span>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">url_gambar</label>
+          <input type="text" id="img-input" class="input-field" placeholder="Masukan URL / path gambar profil">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">nama</label>
+          <input type="text" id="nama-input" class="input-field" placeholder="Masukan nama lengkap">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">deskripsi</label>
+          <input type="text" id="deskripsi-input" class="input-field" placeholder="Masukan bio / deskripsi singkat">
+        </div>
+
+        <!-- Social Media Section -->
+        <div class="section-header" style="margin-top: 30px;">
+          <i class="fas fa-share-alt section-icon"></i>
+          <span class="section-title">MEDIA SOSIAL</span>
+        </div>
+
+        <div class="dynamic-list" id="medsos-list">
+          <!-- Dynamic social media items will be added here -->
+        </div>
+        <button type="button" class="add-btn" onclick="addMedsos()">
+          <i class="fas fa-plus"></i> Tambah Media Sosial
+        </button>
+
+        <!-- Links Section -->
+        <div class="section-header" style="margin-top: 30px;">
+          <i class="fas fa-link section-icon"></i>
+          <span class="section-title">TAUTAN / LINK</span>
+        </div>
+
+        <div class="dynamic-list" id="links-list">
+        </div>
+        <button type="button" class="add-btn" onclick="addLink()">
+          <i class="fas fa-plus"></i> Tambah Tautan
+        </button>
+
+        <!-- Footer Section -->
+        <div class="section-header" style="margin-top: 30px;">
+          <i class="fas fa-copyright section-icon"></i>
+          <span class="section-title">FOOTER</span>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">teks_footer</label>
+          <input type="text" id="footer-input" class="input-field" placeholder="Masukan teks footer">
+        </div>
+      </div>
+
+      <!-- Right Panel - Preview -->
+      <div class="preview-panel">
+        <div class="preview-header">
+          <div class="section-header" style="margin: 0; border: none; padding: 0;">
+            <i class="fas fa-eye section-icon"></i>
+            <span class="section-title">PRATINJAU</span>
+          </div>
+        </div>
+        <div class="preview-container">
+          <div class="preview-active" id="preview-badge">
+            PRATINJAU AKTIF
+          </div>
+          <div class="preview-placeholder" id="preview-placeholder">
+            <i class="fas fa-desktop"></i>
+            <p>
+              Pratinjau akan muncul di sini setelah Anda<br>mengisi formulir dan menekan tombol <strong>"Lihat Pratinjau"</strong>
+            </p>
+          </div>
+          <iframe id="preview-iframe" title="Pratinjau"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="bottom-bar">
+      <div class="action-buttons">
+        <button type="button" class="action-btn btn-preview" onclick="updatePreview()">
+          <i class="fas fa-eye"></i> Lihat Pratinjau
+        </button>
+        <button type="button" class="action-btn btn-copy" onclick="showCodeModal()">
+          <i class="fas fa-code"></i> Lihat & Salin Kode
+        </button>
+        <button type="button" class="action-btn btn-download" onclick="downloadHTML()">
+          <i class="fas fa-download"></i> Unduh HTML
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toast-message">Berhasil!</span>
+  </div>
+
+  <!-- Code Modal -->
+  <div class="modal-overlay" id="code-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="modal-title">KODE HTML YANG DIHASILKAN</span>
+        <button type="button" class="modal-close" onclick="closeCodeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <pre class="code-block" id="code-output"></pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="action-btn btn-copy" onclick="copyCode()">
+          <i class="fas fa-copy"></i> Salin ke Clipboard
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Dark mode detection
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.classList.add('dark');
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+      if (event.matches) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    });
+
+    // Counter for dynamic items
+    let medsosCounter = 0;
+    let linkCounter = 0;
+
+    // Supported social media platforms
+    const socialPlatforms = [{
+      value: 'github', label: 'GitHub', placeholder: 'Masukan username'
+    },
+      {
+        value: 'facebook', label: 'Facebook', placeholder: 'Masukan username'
+      },
+      {
+        value: 'instagram', label: 'Instagram', placeholder: 'Masukan username'
+      },
+      {
+        value: 'twitter', label: 'Twitter / X', placeholder: 'Masukan username'
+      },
+      {
+        value: 'youtube', label: 'YouTube', placeholder: 'Masukan username'
+      },
+      {
+        value: 'linkedin', label: 'LinkedIn', placeholder: 'Masukan username'
+      },
+      {
+        value: 'tiktok', label: 'TikTok', placeholder: 'Masukan username'
+      },
+      {
+        value: 'discord', label: 'Discord', placeholder: 'Masukan username'
+      },
+      {
+        value: 'twitch', label: 'Twitch', placeholder: 'Masukan username'
+      },
+      {
+        value: 'spotify', label: 'Spotify', placeholder: 'Masukan username'
+      },
+      {
+        value: 'whatsapp', label: 'WhatsApp', placeholder: 'Masukan nomor'
+      },
+      {
+        value: 'telegram', label: 'Telegram', placeholder: 'Masukan username'
+      },
+      {
+        value: 'dribbble', label: 'Dribbble', placeholder: 'Masukan username'
+      },
+      {
+        value: 'behance', label: 'Behance', placeholder: 'Masukan username'
+      },
+      {
+        value: 'medium', label: 'Medium', placeholder: 'Masukan username'
+      },
+      {
+        value: 'pinterest', label: 'Pinterest', placeholder: 'Masukan username'
+      },
+      {
+        value: 'reddit', label: 'Reddit', placeholder: 'Masukan username'
+      },
+      {
+        value: 'snapchat', label: 'Snapchat', placeholder: 'Masukan username'
+      },
+      {
+        value: 'steam', label: 'Steam', placeholder: 'Masukan username'
+      },
+      {
+        value: 'paypal', label: 'PayPal', placeholder: 'Masukan username'
+      },
+      {
+        value: 'patreon', label: 'Patreon', placeholder: 'Masukan username'
+      },
+      {
+        value: 'codepen', label: 'CodePen', placeholder: 'Masukan username'
+      },
+      {
+        value: 'stackoverflow', label: 'Stack Overflow', placeholder: 'Masukan username'
+      },
+      {
+        value: 'email', label: 'Email', placeholder: 'Masukan alamat email'
+      }];
+
+    // Generate platform options HTML
+    function getPlatformOptions() {
+      let options = '<option value="">-- Pilih Platform --</option>';
+      socialPlatforms.forEach(p => {
+        options += `<option value="${p.value}">${p.label}</option>`;
+      });
+      return options;
+    }
+
+    // Get placeholder for platform
+    function getPlaceholderForPlatform(platformValue) {
+      const platform = socialPlatforms.find(p => p.value === platformValue);
+      return platform ? platform.placeholder: 'Masukan username';
+    }
+
+    // Add social media item
+    function addMedsos() {
+      medsosCounter++;
+      const list = document.getElementById('medsos-list');
+      const item = document.createElement('div');
+      item.className = 'list-item';
+      item.id = `medsos-${medsosCounter}`;
+      item.innerHTML = `
+      <div class="list-item-header">
+      <span class="list-item-number">MEDSOS #${medsosCounter}</span>
+      <button type="button" class="remove-btn" onclick="removeItem('medsos-${medsosCounter}')">
+      <i class="fas fa-trash"></i> Hapus
+      </button>
+      </div>
+      <div class="list-item-inputs two-col">
+      <select class="small-select medsos-platform" onchange="updateMedsosPlaceholder(this)">
+      ${getPlatformOptions()}
+      </select>
+      <input type="text" class="small-input medsos-url" placeholder="Pilih platform terlebih dahulu">
+      </div>
+      `;
+      list.appendChild(item);
+    }
+
+    // Update placeholder when platform changes
+    function updateMedsosPlaceholder(selectElement) {
+      const urlInput = selectElement.parentElement.querySelector('.medsos-url');
+      const placeholder = getPlaceholderForPlatform(selectElement.value);
+      urlInput.placeholder = placeholder;
+      urlInput.value = '';
+    }
+
+    // Add link item
+    function addLink() {
+      linkCounter++;
+      const list = document.getElementById('links-list');
+      const item = document.createElement('div');
+      item.className = 'list-item';
+      item.id = `link-${linkCounter}`;
+      item.innerHTML = `
+      <div class="list-item-header">
+      <span class="list-item-number">TAUTAN #${linkCounter}</span>
+      <button type="button" class="remove-btn" onclick="removeItem('link-${linkCounter}')">
+      <i class="fas fa-trash"></i> Hapus
+      </button>
+      </div>
+      <div class="list-item-inputs">
+      <input type="text" class="small-input link-title" placeholder="Masukan judul tautan">
+      <input type="text" class="small-input link-url" placeholder="Masukan URL tautan (https://...)">
+      </div>
+      `;
+      list.appendChild(item);
+    }
+
+    // Remove item
+    function removeItem(id) {
+      const item = document.getElementById(id);
+      if (item) {
+        item.style.animation = 'slideIn 0.3s ease reverse';
+        setTimeout(() => {
+          item.remove();
+        }, 300);
+      }
+    }
+
+    // Get form data
+    function getFormData() {
+      const data = {
+        img: document.getElementById('img-input').value.trim(),
+        nama: document.getElementById('nama-input').value.trim(),
+        deskripsi: document.getElementById('deskripsi-input').value.trim(),
+        medsos: [],
+        links: [],
+        footer: document.getElementById('footer-input').value.trim()
+      };
+
+      // Get social media data
+      const medsosItems = document.querySelectorAll('#medsos-list .list-item');
+      medsosItems.forEach(item => {
+        const platform = item.querySelector('.medsos-platform').value.trim().toLowerCase();
+        const url = item.querySelector('.medsos-url').value.trim();
+        if (platform && url) {
+          data.medsos.push({
+            platform, url
+          });
+        }
+      });
+
+      // Get links data
+      const linkItems = document.querySelectorAll('#links-list .list-item');
+      linkItems.forEach(item => {
+        const text = item.querySelector('.link-title').value.trim();
+        const url = item.querySelector('.link-url').value.trim();
+        if (text && url) {
+          data.links.push({
+            text, url
+          });
+        }
+      });
+
+      return data;
+    }
+
+    // Validate form data
+    function validateForm() {
+      const data = getFormData();
+      const errors = [];
+
+      if (!data.nama) {
+        errors.push('Nama tidak boleh kosong');
+      }
+
+      if (errors.length > 0) {
+        showToast(errors[0], true);
+        return false;
+      }
+
+      return true;
+    }
+
+    // Generate HTML code
+    function generateHTML(data) {
+      const medsosJSON = JSON.stringify(data.medsos, null, 8);
+      const linksJSON = JSON.stringify(data.links, null, 8);
+
+      return `<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linktree - ${escapeHtml(data.nama || 'Profil Saya')}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/hanzcode1/LinktreeBuilder@main/style.css">
+   <script src="https://cdn.jsdelivr.net/gh/hanzcode1/LinktreeBuilder@main/script.js"><\/script>
+</head>
+<body>
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loading">
+    <div class="loading-pixels">
+      <div class="loading-pixel"></div>
+      <div class="loading-pixel"></div>
+      <div class="loading-pixel"></div>
+    </div>
+  </div>
+
+  <!-- Main App Container -->
+  <div id="app"></div>
+
+  <script>
+    Linktree.init({
+    img: "${escapeHtml(data.img)}",
+    nama: "${escapeHtml(data.nama)}",
+    deskripsi: "${escapeHtml(data.deskripsi)}",
+    medsos: ${medsosJSON},
+    links: ${linksJSON},
+    footer: "${escapeHtml(data.footer)}"
+    });
+  <\/script>
+</body>
+</html>
+`;
+    }
+
+    // Escape HTML special characters
+    function escapeHtml(text) {
+      if (!text) return '';
+      return text
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    }
+
+    // Update preview
+    function updatePreview() {
+      if (!validateForm()) return;
+
+      const data = getFormData();
+      const html = generateHTML(data);
+      const iframe = document.getElementById('preview-iframe');
+      const placeholder = document.getElementById('preview-placeholder');
+      const badge = document.getElementById('preview-badge');
+
+      // Show iframe and hide placeholder
+      placeholder.style.display = 'none';
+      iframe.classList.add('show');
+      badge.classList.add('show');
+
+      // Write to iframe
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      doc.open();
+      doc.write(html);
+      doc.close();
+
+      showToast('Pratinjau berhasil dimuat!');
+    }
+
+    // Show code modal
+    function showCodeModal() {
+      if (!validateForm()) return;
+
+      const data = getFormData();
+      const html = generateHTML(data);
+      document.getElementById('code-output').textContent = html;
+      document.getElementById('code-modal').classList.add('show');
+    }
+
+    // Close code modal
+    function closeCodeModal() {
+      document.getElementById('code-modal').classList.remove('show');
+    }
+
+    // Copy code to clipboard
+    function copyCode() {
+      const data = getFormData();
+      const html = generateHTML(data);
+
+      navigator.clipboard.writeText(html).then(() => {
+        showToast('Kode berhasil disalin ke clipboard!');
+      }).catch(() => {
+        showToast('Gagal menyalin kode!', true);
+      });
+    }
+
+    // Download HTML file
+    function downloadHTML() {
+      if (!validateForm()) return;
+
+      const data = getFormData();
+      const html = generateHTML(data);
+      const blob = new Blob([html], {
+        type: 'text/html'
+      });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'index.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showToast('File index.html berhasil diunduh!');
+    }
+
+    // Show toast notification
+    function showToast(message, isError = false) {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toast-message');
+
+      toastMessage.textContent = message;
+      toast.classList.toggle('error', isError);
+      toast.querySelector('i').className = isError ? 'fas fa-exclamation-circle': 'fas fa-check-circle';
+
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // Close modal on overlay click
+    document.getElementById('code-modal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeCodeModal();
+      }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeCodeModal();
+      }
+    });
+  </script>
+</body>
+</html>
